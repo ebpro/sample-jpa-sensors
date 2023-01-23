@@ -2,7 +2,6 @@ package fr.univtln.bruno.samples.jpa.sensors.devices;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +14,6 @@ import java.util.HashSet;
 @ToString
 @NoArgsConstructor
 @Entity
-@Table(name = "HYGROMETER")
 public class Hygrometer extends Sensor {
     @Column(name = "MIN_HYGROMETRY")
     private int minHygrometry = 0;

@@ -5,7 +5,6 @@ import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import fr.univtln.bruno.samples.jpa.sensors.observations.Observation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,7 +15,6 @@ import java.util.HashSet;
 @Getter
 @ToString
 @Entity
-@Table(name = "THERMOMETER")
 public class Thermometer extends Sensor {
     @Setter
     @Column(name = "TEMPERATURE_PRECISION")
@@ -47,6 +45,7 @@ public class Thermometer extends Sensor {
         return new Thermometer(precision, Status.ONLINE, null);
     }
 
+    @Override
     public Observation makeObservation(String simpleResult, FeatureOfInterest featureOfInterest, ObservableProperty observableProperty) {
         return makeObservation(LocalDateTime.now(), simpleResult, featureOfInterest, observableProperty);
     }
