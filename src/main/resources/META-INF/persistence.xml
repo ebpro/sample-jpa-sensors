@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+    version="3.0">
+
+    <persistence-unit name="sensors_pu" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+        <class>fr.univtln.bruno.samples.jpa.sensors.Location</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Platform</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Sensor</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Thermometer</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Hygrometer</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.observations.Observation</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.communication.Group</class>
+
+        <properties>
+            <!-- Les paramètres de connexions -->
+            <!--property name="jakarta.persistence.target-database" value="H2" /-->
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
+            <!--property name="jakarta.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/sensors;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"/-->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/sensors"/>
+            <property name="jakarta.persistence.jdbc.user" value="demoJPA" />
+            <property name="jakarta.persistence.jdbc.password" value="demoJPA" />
+
+            <!-- Les options de générations des tables -->
+            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create" />
+            <property name="jakarta.persistence.schema-generation.scripts.action" value="drop-and-create" />
+            <property name="jakarta.persistence.schema-generation.scripts.create-target" value="sensors-create.ddl" />
+            <property name="jakarta.persistence.schema-generation.scripts.drop-target" value="sensors-drop.ddl" />
+
+            <!-- Specific to eclipselink -->
+            <!--property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/-->
+            <property name="eclipselink.logging.level.sql" value="FINEST"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+
+            <!--property name="jakarta.persistence.sql-load-script-source" value="insert.sql"/-->
+        </properties>
+    </persistence-unit>
+</persistence>

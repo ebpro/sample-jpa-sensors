@@ -1,0 +1,38 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package sensors <<Folder>> {
+
+ package observations <<Folder>> {
+  class ObservableProperty
+  class FeatureOfInterest
+  class Result
+  class Observation
+ }
+
+ package devices <<Folder>> {
+  class Platform
+  class Sensor
+  class Thermometer
+  class Hygrometer
+ }
+
+ package communication <<Folder>> {
+  class Group
+ }
+
+class Location
+
+}
+
+Platform o-- "*" Sensor
+Sensor <|-- Thermometer
+Sensor <|-- Hygrometer
+
+Observation "1" -- "1" Result
+Observation "1" -- "1" FeatureOfInterest
+Observation "1" -- "1" ObservableProperty
+
+Sensor "*" -- "subscriber *" Group
+
+@enduml
