@@ -1,7 +1,8 @@
 package fr.univtln.bruno.samples.jpa.sensors;
 
-import fr.univtln.bruno.samples.jpa.sensors.devices.Platform;
-import fr.univtln.bruno.samples.jpa.sensors.devices.Sensor;
+import fr.univtln.bruno.samples.jpa.sensors.deployment.Deployment;
+import fr.univtln.bruno.samples.jpa.sensors.deployment.Platform;
+import fr.univtln.bruno.samples.jpa.sensors.systems.Sensor;
 import fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import fr.univtln.bruno.samples.jpa.sensors.observations.Sample;

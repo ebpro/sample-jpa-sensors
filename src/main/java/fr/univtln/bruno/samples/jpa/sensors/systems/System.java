@@ -1,6 +1,7 @@
-package fr.univtln.bruno.samples.jpa.sensors.devices;
+package fr.univtln.bruno.samples.jpa.sensors.systems;
 
 import fr.univtln.bruno.samples.jpa.sensors.communication.Group;
+import fr.univtln.bruno.samples.jpa.sensors.deployment.Platform;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

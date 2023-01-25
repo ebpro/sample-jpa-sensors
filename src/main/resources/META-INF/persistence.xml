@@ -7,10 +7,10 @@
 
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
-        <class>fr.univtln.bruno.samples.jpa.sensors.Deployment</class>
-        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Platform</class>
-        <class>fr.univtln.bruno.samples.jpa.sensors.devices.System</class>
-        <class>fr.univtln.bruno.samples.jpa.sensors.devices.Sensor</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.deployment.Deployment</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.deployment.Platform</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.systems.System</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.systems.Sensor</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.Observation</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.Sample</class>

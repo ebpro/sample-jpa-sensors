@@ -1,6 +1,6 @@
 package fr.univtln.bruno.samples.jpa.sensors.observations;
 
-import fr.univtln.bruno.samples.jpa.sensors.devices.Platform;
+import fr.univtln.bruno.samples.jpa.sensors.deployment.Platform;
 import jakarta.persistence.*;
 import lombok.*;
 

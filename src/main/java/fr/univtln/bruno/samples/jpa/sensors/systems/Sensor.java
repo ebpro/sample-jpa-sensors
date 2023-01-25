@@ -1,4 +1,4 @@
-package fr.univtln.bruno.samples.jpa.sensors.devices;
+package fr.univtln.bruno.samples.jpa.sensors.systems;
 
 import fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;

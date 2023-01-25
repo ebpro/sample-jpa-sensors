@@ -1,6 +1,5 @@
-package fr.univtln.bruno.samples.jpa.sensors;
+package fr.univtln.bruno.samples.jpa.sensors.deployment;
 
-import fr.univtln.bruno.samples.jpa.sensors.devices.Platform;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,7 +35,7 @@ public class Deployment implements Serializable {
     private String comment;
 
     @OneToOne
-    private fr.univtln.bruno.samples.jpa.sensors.devices.System system;
+    private fr.univtln.bruno.samples.jpa.sensors.systems.System system;
 
     @OneToOne
     private Platform platform;
