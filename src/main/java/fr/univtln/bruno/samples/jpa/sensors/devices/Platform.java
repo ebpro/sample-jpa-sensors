@@ -1,6 +1,6 @@
 package fr.univtln.bruno.samples.jpa.sensors.devices;
 
-import fr.univtln.bruno.samples.jpa.sensors.Location;
+import fr.univtln.bruno.samples.jpa.sensors.Deployment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * A Platform is an entity that hosts other entities, particularly Sensors, Actuators, Samplers, and other Platforms.
- * <p>
+ *
  * Examples: A post, buoy, vehicle, ship, aircraft, satellite, cell-phone, human or animal may act as Platforms
  * for (technical or biological) Sensors or Actuators.
  *
@@ -19,34 +19,28 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "PLATFORM")
+@Builder
+@AllArgsConstructor
 public class Platform {
-    public static Platform of(String name, Location location) {
-        return new Platform(name, location, null);
-    }
-
-    @Builder
-    private Platform(String name, Location location, Set<Sensor> sensors) {
-        this.name = name;
-        this.location = location;
-        this.sensors = sensors;
-    }
-
     @Id
     @GeneratedValue
     @Column(name = "ID")
     private long id;
 
-    @Column(name = "NAME")
-    private String name;
+    @Column(name = "LABEL")
+    private String label;
+
+    @Column(name = "COMMENT")
+    private String comment;
 
     @ManyToOne
-    @JoinColumn(name = "LOCATION")
+    @JoinColumn(name = "DEPLOYMENT")
     @Setter
-    private Location location;
+    private Deployment deployment;
 
     @Singular
     @Setter
-    @OneToMany(mappedBy = "host")
-    Set<Sensor> sensors;
+    @OneToMany(mappedBy = "host", cascade = CascadeType.PERSIST)
+    Set<System> systems;
 
 }

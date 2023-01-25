@@ -15,6 +15,9 @@ import java.util.UUID;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "GROUP_OF_DEVICES")
+/**
+ *
+ */
 public class Group {
     public static Group of(String name) {
         return new Group(UUID.randomUUID(), name, new HashSet<>());

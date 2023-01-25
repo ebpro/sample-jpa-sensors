@@ -11,13 +11,18 @@ import lombok.*;
 @Setter
 @Getter
 @ToString
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
+@Builder
 @Table(name = "OBSERVABLE_PROPERTY")
 public class ObservableProperty {
     @Id
     @EqualsAndHashCode.Include
-    private String name;
+    @Column(name = "LABEL")
+    private String label;
+
+    @Column(name="COMMENT")
+    private String Comment;
 }

@@ -3,18 +3,13 @@ package fr.univtln.bruno.samples.jpa.sensors;
 import fr.univtln.bruno.samples.jpa.sensors.communication.Group;
 import fr.univtln.bruno.samples.jpa.sensors.devices.Platform;
 import fr.univtln.bruno.samples.jpa.sensors.devices.Sensor;
-import fr.univtln.bruno.samples.jpa.sensors.devices.Thermometer;
 import fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.h2.tools.Server;
 
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +22,7 @@ public class App {
 
     public static void main(String[] args) {
 
-        Server h2Server;
+/*        Server h2Server;
         try {
             h2Server = Server.createTcpServer(new String[]{"-ifNotExists"}).start();
             if (h2Server.isRunning(true)) {
@@ -37,28 +32,27 @@ public class App {
             }
         } catch (SQLException e) {
             System.err.println("Failed to start H2 server: " + e.getMessage());
-        }
+        }*/
 
         entityManagerFactory = Persistence.createEntityManagerFactory("sensors_pu");
 
-        Map<String, Location> locations = Stream.of(new String[][]{
+        Map<String, Deployment> locations = Stream.of(new String[][]{
                 {"E00", "Cuisine"},
                 {"E01", "Salon"},
                 {"E02", "Salle à manger"},
                 {"E03", "Chambre"}
         }).collect(Collectors.collectingAndThen(
-                Collectors.toMap(data -> data[0], data -> Location.of(data[0], data[1])),
-                Collections::<String, Location>unmodifiableMap));
+                Collectors.toMap(data -> data[0], data -> Deployment.builder().label(data[0]).comment(data[1]).build()),
+                Collections::<String, Deployment>unmodifiableMap));
 
-        Map<String, FeatureOfInterest> featureOfInterestMap = locations.values().stream()
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(data -> data.getId(), data -> FeatureOfInterest.of(data.getId(), data)),
-                        Collections::<String, FeatureOfInterest>unmodifiableMap));
+        /*Map<String, FeatureOfInterest> featureOfInterestMap = locations.values().stream()
+                .collect(Collectors.collectingAndThen(Deployment::getLabel,
+                                data -> FeatureOfInterest.builder().label(data.getLabel()).build()),
+                        Collections::<String, FeatureOfInterest>unmodifiableMap);*/
 
-        Map<String, ObservableProperty> observablePropertyMap = Stream.of(new String[]{"Temperature", "Humidity"})
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(data -> data, data -> ObservableProperty.of(data)),
-                        Collections::<String, ObservableProperty>unmodifiableMap));
+        Map<String, FeatureOfInterest> featureOfInterestMap = new HashMap<>();
+        locations.values().forEach(l->featureOfInterestMap.put(l.getLabel(), FeatureOfInterest.builder().label(l.getLabel()).comment(l.getComment()).build()));
+
 
         {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -74,8 +68,8 @@ public class App {
 
         {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
-            Location location = entityManager.find(Location.class, "E00");
-            System.out.println(location);
+            Deployment deployment = entityManager.find(Deployment.class, "E00");
+            System.out.println(deployment);
         }
 
         List<Platform> plateforms;
@@ -84,18 +78,18 @@ public class App {
         {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
 
+
+            sensors = List.of(Sensor.builder().label("S1").build(),
+                    Sensor.builder().label("S2").build(),
+                    Sensor.builder().label("S3").build()
+            );
+
             plateforms = List.of(
-                    Platform.of("P1", locations.get("E00")),
-                    Platform.of("P2", locations.get("E01"))
+                    Platform.builder().label("P1").deployment(locations.get("E00")).build(),
+                    Platform.builder().label("P2").deployment(locations.get("E01")).build()
             );
 
             persist(plateforms);
-
-            sensors = List.of(Sensor.builder().host(plateforms.get(0)).build(),
-                    Sensor.builder().host(plateforms.get(0)).build(),
-                    Sensor.builder().host(plateforms.get(1)).build(),
-                    Thermometer.of(0.5)
-            );
 
             groups = List.of(Group.of("G1")
                             .addPublisher(sensors.get(0))
@@ -117,9 +111,9 @@ public class App {
         {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
-            ObservableProperty temperature = ObservableProperty.of("Temperature");
+            ObservableProperty temperature = ObservableProperty.builder().label("Temperature").build();;
             entityManager.merge(temperature);
-            ObservableProperty humidity = ObservableProperty.of("Humidity");
+            ObservableProperty humidity = ObservableProperty.builder().label("Humidity").build();;
             entityManager.merge(humidity);
 
             entityManager.persist(sensors.get(0).makeObservation("20 °C", featureOfInterestMap.get("E00"), temperature));

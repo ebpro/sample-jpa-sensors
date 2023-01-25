@@ -1,15 +1,14 @@
 package fr.univtln.bruno.samples.jpa.sensors.devices;
 
-import fr.univtln.bruno.samples.jpa.sensors.communication.Group;
 import fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import fr.univtln.bruno.samples.jpa.sensors.observations.Observation;
 import fr.univtln.bruno.samples.jpa.sensors.observations.Result;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 /**
  * Sensor - Device, agent (including humans), or software (simulation) involved in, or implementing, a Procedure.
@@ -25,10 +24,11 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
 @Table(name = "SENSOR")
-public class Sensor {
+@SuperBuilder
+public class Sensor extends System {
 
     @EqualsAndHashCode.Include
     @Column(name = "ID")
@@ -36,23 +36,7 @@ public class Sensor {
     @GeneratedValue
     private long id;
 
-    @Setter
-    @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.UNKNOWN;
-
-    @ManyToOne
-    @JoinColumn(name = "HOST_ID")
-    private Platform host;
-
-    @ManyToMany(mappedBy = "publishers")
-    private Set<Group> groups;
-
-    @Builder
-    public Sensor(Status status, Platform host) {
-        this.status = status;
-        this.host = host;
-    }
+    private ObservableProperty observed;
 
     public Observation makeObservation(String simpleResult, FeatureOfInterest featureOfInterest, ObservableProperty observableProperty) {
         return makeObservation(LocalDateTime.now(), simpleResult, featureOfInterest, observableProperty);
@@ -62,5 +46,4 @@ public class Sensor {
         return Observation.of(localDateTime, this, Result.of(simpleResult), featureOfInterest, observableProperty);
     }
 
-    public enum Status {UNKNOWN, ONLINE, OFFLINE, ERROR}
 }

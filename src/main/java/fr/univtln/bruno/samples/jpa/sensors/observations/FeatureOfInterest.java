@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * The thing whose property is being estimated or calculated in the course of an Observation
@@ -19,7 +20,8 @@ import java.io.Serializable;
 @Setter
 @Getter
 @ToString
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
@@ -27,8 +29,17 @@ import java.io.Serializable;
 public class FeatureOfInterest {
     @Id
     @EqualsAndHashCode.Include
-    private String name;
+    @Column(name = "LABEL")
+    private String label;
 
-    @Lob
-    private Serializable feature;
+    @Column(name = "COMMENT")
+    private String comment;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @Singular
+    /**
+     * Relation between a FeatureOfInterest and the Sample used to represent it.
+     */
+    private Set<Sample> samples;
+
 }
