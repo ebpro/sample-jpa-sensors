@@ -27,11 +27,12 @@ import java.util.UUID;
 
 @NamedQuery(name = "Platform.findByLabel", query = "select f from Platform f where f.label = :label")
 public class Platform implements SimpleEntity<UUID>, Serializable {
+
     @Singular
     @Setter
     @OneToMany(mappedBy = "plateform", cascade = CascadeType.PERSIST)
     @ToString.Exclude
-    Set<SSNSystem> SSNSystems;
+    private Set<SSNSystem> SSNSystems;
     @Id
     @GeneratedValue
     @Column(name = "ID", updatable = false, nullable = false)

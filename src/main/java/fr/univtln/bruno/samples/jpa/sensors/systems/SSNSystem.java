@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
+import static fr.univtln.bruno.samples.jpa.sensors.systems.SSNSystem.Status.*;
+
 /**
  * System is a unit of abstraction for pieces of infrastructure that implement Procedures.
  * A System may have components, its subsystems, which are other systems.
@@ -20,6 +22,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @Entity
+//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "SSNSYSTEM")
 @AllArgsConstructor
 @SuperBuilder
@@ -56,7 +59,7 @@ public class SSNSystem implements SimpleEntity<UUID>, Serializable {
     @Setter
     @Column(name = "STATUS")
     @Builder.Default
-    private Sensor.Status status = Sensor.Status.UNKNOWN;
+    private SSNSystem.Status status = UNKNOWN;
 
     public enum Status {UNKNOWN, ONLINE, OFFLINE, ERROR}
 }

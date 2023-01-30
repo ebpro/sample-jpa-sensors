@@ -5,6 +5,7 @@ import fr.univtln.bruno.samples.utils.dao.entities.SimpleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "SAMPLE")
 @NamedQuery(name = "Sample.findByLabel", query = "select f from Sample f where f.label = :label")
-public class Sample implements SimpleEntity<UUID> {
+public class Sample implements SimpleEntity<UUID>, Serializable {
     @Id
     @GeneratedValue
     @Column(name = "ID", updatable = false, nullable = false)

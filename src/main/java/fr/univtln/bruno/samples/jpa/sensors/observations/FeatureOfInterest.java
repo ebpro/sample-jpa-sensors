@@ -12,7 +12,7 @@ import java.util.UUID;
  * The thing whose property is being estimated or calculated in the course of an Observation
  * to arrive at a Result, or whose property is being manipulated by an Actuator, or which is
  * being sampled or transformed in an act of Sampling.
- *
+ * <p>
  * Example 	When measuring the height of a tree, the height is the observed ObservableProperty, 20m may be the Result
  * of the Observation, and the tree is the FeatureOfInterest. A window is a FeatureOfInterest for an automatic window
  * control Actuator.
@@ -30,15 +30,15 @@ import java.util.UUID;
 @Table(name = "FEATURE_OF_INTEREST")
 @NamedQuery(name = "FeatureOfInterest.findByLabel",
         query = "select f from FeatureOfInterest f where f.label = :label")
-@NamedQuery(name= "FeatureOfInterest.findTemperaturesByFeatureOfInterestLabel",
-        query= """
-                select 
-                    new fr.univtln.bruno.samples.jpa.sensors.observations.ObservationMinimal(o.resultDateTime, o.result.value,o.result.unit) 
+@NamedQuery(name = "FeatureOfInterest.findTemperaturesByFeatureOfInterestLabel",
+        query = """
+                select
+                    new fr.univtln.bruno.samples.jpa.sensors.observations.ObservationMinimal(o.resultDateTime, o.result.value,o.result.unit)
                 from 
-                    FeatureOfInterest f 
-                        join Observation o 
+                Observation o
                 where 
-                    f.label=:label and o.source.quantityClass = 'javax.measure.quantity.Temperature'""" )
+                    o.observableProperty.featureOfInterest.label=:label 
+                    and o.source.quantityClass = 'javax.measure.quantity.Temperature'""")
 public class FeatureOfInterest implements SimpleEntity<UUID>, Serializable {
     @Id
     //@GeneratedValue(strategy = GenerationType.UUID)
@@ -55,12 +55,13 @@ public class FeatureOfInterest implements SimpleEntity<UUID>, Serializable {
     @Column(name = "COMMENT")
     private String comment;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @Singular
-    @ToString.Exclude
+
     /**
      * Relation between a FeatureOfInterest and the Sample used to represent it.
      */
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @Singular
+    @ToString.Exclude
     private Set<Sample> samples;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "featureOfInterest")

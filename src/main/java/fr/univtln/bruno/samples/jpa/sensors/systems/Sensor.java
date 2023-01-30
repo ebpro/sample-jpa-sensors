@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,7 +38,7 @@ public class Sensor extends SSNSystem {
     private Set<ObservableProperty> observableProperties;
     /**
      * The measured quantity : Temperature, ...
-     * see  https://www.javadoc.io/doc/javax.measure/unit-api/latest/javax/measure/quantity/package-summary.html
+     * see  <a href="https://www.javadoc.io/doc/javax.measure/unit-api/latest/javax/measure/quantity/package-summary.html">Units API</a>
      */
     private String quantityClass;
 
@@ -46,8 +47,10 @@ public class Sensor extends SSNSystem {
                 .resultDateTime(LocalDateTime.now())
                 .source(this);
 
-        if (observableProperties.size() == 1)
-            builder = builder.observableProperty(observableProperties.stream().findFirst().get());
+        Optional<ObservableProperty> observableProperty = observableProperties.stream().findFirst();
+        if (observableProperty.isPresent()) {
+            builder = builder.observableProperty(observableProperty.get());
+        }
 
         return builder;
     }
