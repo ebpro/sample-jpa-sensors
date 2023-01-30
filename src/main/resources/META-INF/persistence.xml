@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
     version="3.0">
 
     <persistence-unit name="sensors_pu" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <!--provider>org.hibernate.jpa.HibernatePersistenceProvider</provider-->
 
         <class>fr.univtln.bruno.samples.jpa.sensors.deployment.Deployment</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.deployment.Platform</class>
-        <class>fr.univtln.bruno.samples.jpa.sensors.systems.System</class>
+        <class>fr.univtln.bruno.samples.jpa.sensors.systems.SSNSystem</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.systems.Sensor</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.Observation</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest</class>

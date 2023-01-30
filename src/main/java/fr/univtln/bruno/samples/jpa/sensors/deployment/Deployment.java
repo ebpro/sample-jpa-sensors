@@ -1,12 +1,15 @@
 package fr.univtln.bruno.samples.jpa.sensors.deployment;
 
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
+import fr.univtln.bruno.samples.jpa.sensors.systems.SSNSystem;
+import fr.univtln.bruno.samples.utils.dao.entities.SimpleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.java.Log;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -25,23 +28,30 @@ import java.util.Set;
  *
  * See <a href="https://www.w3.org/TR/vocab-ssn/#SSNDeployment">SSNDeployment</a>
  */
-public class Deployment implements Serializable {
-    @EqualsAndHashCode.Include
-    @Column( name="LABEL" )
+@NamedQuery(name = "Deployment.findByLabel", query = "select f from Deployment f where f.label = :label")
+public class Deployment implements Serializable, SimpleEntity<UUID> {
+
     @Id
+    @Column(name = "ID", updatable = false, nullable = false)
+    @EqualsAndHashCode.Include
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
+
+    @Column( name="LABEL" )
     private String label;
 
     @Column( name="COMMENT" )
     private String comment;
 
-    @OneToOne
-    private fr.univtln.bruno.samples.jpa.sensors.systems.System system;
+    @OneToMany
+    @Singular
+    private Set<SSNSystem> SSNSystems;
 
-    @OneToOne
-    private Platform platform;
+    @OneToMany(mappedBy = "deployment")
+    @Singular
+    private Set<Platform> platforms;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @JoinColumn( name="OBSERVABLE_PROPERTY_ID" )
+    @OneToMany
     @Singular
     private Set<ObservableProperty> observableProperties;
 

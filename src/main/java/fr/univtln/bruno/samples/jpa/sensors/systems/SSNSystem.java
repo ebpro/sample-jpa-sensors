@@ -1,43 +1,49 @@
 package fr.univtln.bruno.samples.jpa.sensors.systems;
 
-import fr.univtln.bruno.samples.jpa.sensors.communication.Group;
 import fr.univtln.bruno.samples.jpa.sensors.deployment.Platform;
+import fr.univtln.bruno.samples.utils.dao.entities.SimpleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * System is a unit of abstraction for pieces of infrastructure that implement Procedures.
  * A System may have components, its subsystems, which are other systems.
  *
  * @see <A href="https://www.w3.org/TR/vocab-ssn/#SSNSystem">System</A>
- *
  */
 @ToString
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "SYSTEM")
+@Table(name = "SSNSYSTEM")
+@AllArgsConstructor
 @SuperBuilder
-public abstract class System {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NamedQuery(name = "SSNSystem.findByLabel", query = "select f from SSNSystem f where f.label = :label")
+public class SSNSystem implements SimpleEntity<UUID>, Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(name = "ID")
-    private long id;
+    //@GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID", updatable = false, nullable = false)
+    @EqualsAndHashCode.Include
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
 
     @ManyToOne
     @JoinColumn(name = "HOST_ID")
-    private Platform host;
+    @ToString.Exclude
+    private Platform plateform;
 
-    @ManyToMany(mappedBy = "publishers")
-    private Set<Group> groups;
-
-    @ManyToMany
-    @JoinTable(name = "SUBSYSTEM")
-    private Set<System> subsystem;
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "SSNSUBSYSTEM")
+    @Singular
+    @ToString.Exclude
+    private Set<SSNSystem> subsystems;
 
     @Setter
     @Column(name = "LABEL")
@@ -49,14 +55,8 @@ public abstract class System {
 
     @Setter
     @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-
     @Builder.Default
     private Sensor.Status status = Sensor.Status.UNKNOWN;
-
-    protected System(String label) {
-        this.label = label;
-    }
 
     public enum Status {UNKNOWN, ONLINE, OFFLINE, ERROR}
 }

@@ -1,14 +1,15 @@
 package fr.univtln.bruno.samples.jpa.sensors.systems;
 
-import fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest;
 import fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty;
 import fr.univtln.bruno.samples.jpa.sensors.observations.Observation;
-import fr.univtln.bruno.samples.jpa.sensors.observations.Result;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedQuery;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * Sensor - Device, agent (including humans), or software (simulation) involved in, or implementing, a Procedure.
@@ -21,29 +22,33 @@ import java.time.LocalDateTime;
  * @see <a href="https://www.w3.org/TR/vocab-ssn/#SOSASensor">SOSASensor</a>
  */
 @Getter
-@ToString
+@ToString(callSuper = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Entity
-@Table(name = "SENSOR")
 @SuperBuilder
-public class Sensor extends System {
+@NamedQuery(name = "Sensor.findByLabel", query = "select f from Sensor f where f.label = :label")
+public class Sensor extends SSNSystem {
 
-    @EqualsAndHashCode.Include
-    @Column(name = "ID")
-    @Id
-    @GeneratedValue
-    private long id;
+    @ManyToMany
+    @ToString.Exclude
+    @Singular
+    private Set<ObservableProperty> observableProperties;
+    /**
+     * The measured quantity : Temperature, ...
+     * see  https://www.javadoc.io/doc/javax.measure/unit-api/latest/javax/measure/quantity/package-summary.html
+     */
+    private String quantityClass;
 
-    private ObservableProperty observed;
+    public Observation.ObservationBuilder makeObservation() {
+        Observation.ObservationBuilder builder = Observation.builder()
+                .resultDateTime(LocalDateTime.now())
+                .source(this);
 
-    public Observation makeObservation(String simpleResult, FeatureOfInterest featureOfInterest, ObservableProperty observableProperty) {
-        return makeObservation(LocalDateTime.now(), simpleResult, featureOfInterest, observableProperty);
+        if (observableProperties.size() == 1)
+            builder = builder.observableProperty(observableProperties.stream().findFirst().get());
+
+        return builder;
     }
-
-    public Observation makeObservation(LocalDateTime localDateTime, String simpleResult, FeatureOfInterest featureOfInterest, ObservableProperty observableProperty) {
-        return Observation.of(localDateTime, this, Result.of(simpleResult), featureOfInterest, observableProperty);
-    }
-
 }

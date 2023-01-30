@@ -1,10 +1,12 @@
 package fr.univtln.bruno.samples.jpa.sensors.observations;
 
 import fr.univtln.bruno.samples.jpa.sensors.deployment.Platform;
+import fr.univtln.bruno.samples.utils.dao.entities.SimpleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Samples are typically subsets or extracts from the feature of interest of an observation. They are used in situations
@@ -17,7 +19,7 @@ import java.util.Set;
  * However, in some cases the identity, and even the exact type, of the sampled feature may not be known when observations
  * are made using the sampling features.
  * Physical samples are sometimes known as 'specimens'.
- *
+ * <p>
  * A 'station' is essentially an identifiable locality where a Sensor system or procedure may be deployed and
  * an observation made. In the context of the observation model, it connotes the 'world in the vicinity of the station',
  * so the observed properties relate to the physical medium at the station, and not to any physical artifact such
@@ -30,20 +32,28 @@ import java.util.Set;
 @Setter
 @Getter
 @ToString
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Builder
 @Table(name = "SAMPLE")
-public class Sample {
+@NamedQuery(name = "Sample.findByLabel", query = "select f from Sample f where f.label = :label")
+public class Sample implements SimpleEntity<UUID> {
     @Id
+    @GeneratedValue
+    @Column(name = "ID", updatable = false, nullable = false)
     @EqualsAndHashCode.Include
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
+
+    @Column(name = "LABEL")
     private String label;
 
     @Column(name = "COMMENT")
     private String comment;
 
     @ManyToMany
+    @ToString.Exclude
     private Set<Platform> platform;
 }
