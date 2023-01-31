@@ -11,14 +11,16 @@ import java.lang.reflect.ParameterizedType;
 /**
  * The type Abstract dao.
  *
- * @param <T> the type parameter
+ * @param <E> the type parameter
  */
 @Getter
 @RequiredArgsConstructor
 @Log
-public class AbstractDAO<T extends SimpleEntity<I>, I> implements DAO<T, I> {
+public class AbstractDAO<E extends SimpleEntity<I>, I> implements DAO<E, I> {
 
-    private final Class<T> myType;
+    private final Class<I> myIdType;
+
+    private final Class<E> myEntityType;
 
     private final EntityManager entityManager;
 
@@ -28,7 +30,8 @@ public class AbstractDAO<T extends SimpleEntity<I>, I> implements DAO<T, I> {
         //In case of use with implementation class using raw types (mandatory with EJBs).
         while (!(c.getGenericSuperclass() instanceof ParameterizedType))
             c = c.getSuperclass();
-        myType = (Class<T>) ((ParameterizedType) c.getGenericSuperclass()).getActualTypeArguments()[0];
+        myEntityType = (Class<E>) ((ParameterizedType) c.getGenericSuperclass()).getActualTypeArguments()[0];
+        myIdType = (Class<I>) ((ParameterizedType) c.getGenericSuperclass()).getActualTypeArguments()[1];
     }
 }
 

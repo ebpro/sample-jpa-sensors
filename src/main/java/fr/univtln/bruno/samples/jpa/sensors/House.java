@@ -19,14 +19,15 @@ import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.map.ImmutableMap;
 
 import javax.measure.quantity.Temperature;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Log
 public class House {
-
 
     public static void main(String[] args) {
 
@@ -99,14 +100,20 @@ public class House {
             Random random = new Random();
 
             observationDAO.begin();
-            locations.select((k, v) -> roomsWithKNXSwitchWithTSensor.contains(k)).forEachKeyValue((locationCode, locationDescription) -> {
-                try {
-                    Sensor sensor = sensorDAO.findWithNamedQuery("Sensor.findByLabel", Map.of("label", String.format("CVCTH_%s", locationCode))).get(0);
-                    observationDAO.persist(sensor.makeObservation().result(Result.of(random.nextFloat(40) - 10 + " °C")).observableProperty(sensor.getObservableProperties().stream().findFirst().get()).build());
-                } catch (DAOException e) {
-                    log.severe(e.getMessage());
-                }
-            });
+            locations.select((k, v) -> roomsWithKNXSwitchWithTSensor.contains(k))
+                    .forEachKeyValue((locationCode, locationDescription) -> {
+                        try {
+                            Sensor sensor = sensorDAO.findWithNamedQuery("Sensor.findByLabel", Map.of("label", String.format("CVCTH_%s", locationCode))).get(0);
+                            LocalDateTime now = LocalDateTime.now();
+                            IntStream.range(0, 100).forEach(i -> observationDAO.persist(sensor
+                                    .makeObservation()
+                                    .resultDateTime(now.plusMinutes(5L * i))
+                                    .result(Result.of(random.nextFloat(40) - 10 + " °C"))
+                                    .observableProperty(sensor.getObservableProperties().stream().findFirst().orElseThrow()).build()));
+                        } catch (DAOException e) {
+                            log.severe(e.getMessage());
+                        }
+                    });
             observationDAO.commit();
 
             log.info(featureOfInterestDAO.getTemperaturesForLabel("E01").toString());

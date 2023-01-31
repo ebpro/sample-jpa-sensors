@@ -17,7 +17,6 @@
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.FeatureOfInterest</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.Sample</class>
         <class>fr.univtln.bruno.samples.jpa.sensors.observations.ObservableProperty</class>
-        <class>fr.univtln.bruno.samples.jpa.sensors.communication.Group</class>
 
         <properties>
             <!-- Les paramètres de connexions -->

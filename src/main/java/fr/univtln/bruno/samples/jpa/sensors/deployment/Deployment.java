@@ -21,14 +21,14 @@ import java.util.UUID;
 
 @Entity @Table( name="DEPLOYEMENT" )
 @Log
+@NamedQuery(name = "Deployment.findByLabel", query = "select f from Deployment f where f.label = :label")
 /**
  * Deployment - Describes the Deployment of one or more Systems for a particular purpose. Deployment may be done on a Platform.
- *
+ * <p/>
  * For example, a temperature Sensor deployed on a wall, or a whole network of Sensors deployed for an Observation campaign.
- *
+ * <p/>
  * See <a href="https://www.w3.org/TR/vocab-ssn/#SSNDeployment">SSNDeployment</a>
  */
-@NamedQuery(name = "Deployment.findByLabel", query = "select f from Deployment f where f.label = :label")
 public class Deployment implements Serializable, SimpleEntity<UUID> {
 
     @Id
@@ -45,23 +45,26 @@ public class Deployment implements Serializable, SimpleEntity<UUID> {
 
     @OneToMany
     @Singular
+    @ToString.Exclude
     private Set<SSNSystem> SSNSystems;
 
     @OneToMany(mappedBy = "deployment")
     @Singular
+    @ToString.Exclude
     private Set<Platform> platforms;
 
     @OneToMany
     @Singular
+    @ToString.Exclude
     private Set<ObservableProperty> observableProperties;
 
     @PrePersist
-    public void logNewLocationAttempt() {
+    public void logNewDeploymentAttempt() {
         log.info("Attempting to add new deployment: " + this);
     }
 
     @PostPersist
-    public void logNewLocationAdded() {
+    public void logNewDeploymentAdded() {
         log.info("Added new deployment: " + this);
     }
 }

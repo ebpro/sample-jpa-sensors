@@ -9,8 +9,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import org.eclipse.collections.api.list.primitive.ImmutableLongList;
-import org.eclipse.collections.impl.factory.primitive.LongLists;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,11 +24,11 @@ import java.util.stream.StreamSupport;
  * <p>
  * If the class Dog implement SimplEntity, i.e. has UUID getUuid() method. The followig snippet generate a DAO.
  * NOTICE the brackets to generate a subclass needed for introspection.
- *
+ * <p>
  * <code>
  * DAO<Doc> dogDAO = new AbstractDAO<>(){}
  * </code>
- *
+ * <p>
  * @param <E> the class of the entity.
  */
 public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
@@ -110,16 +108,23 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
      */
     default int deleteAll() {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaDelete<E> criteriaDelete = cb.createCriteriaDelete(getMyType());
+        CriteriaDelete<E> criteriaDelete = cb.createCriteriaDelete(getMyEntityType());
         return getEntityManager().createQuery(criteriaDelete).executeUpdate();
     }
 
     /**
-     * Gets my type.
+     * Gets the type of the entity
      *
-     * @return the my type
+     * @return the type of the managed entity.
      */
-    Class<E> getMyType();
+    Class<E> getMyEntityType();
+
+    /**
+     * Gets the type of the ID of the entity
+     *
+     * @return the type of the id of the managed entity.
+     */
+    Class<I> getMyIdType();
 
     /**
      * Find all list.
@@ -128,8 +133,8 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
      */
     default List<E> findAll() {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<E> cq = cb.createQuery(getMyType());
-        Root<E> rootEntry = cq.from(getMyType());
+        CriteriaQuery<E> cq = cb.createQuery(getMyEntityType());
+        Root<E> rootEntry = cq.from(getMyEntityType());
         CriteriaQuery<E> all = cq.select(rootEntry);
 
         TypedQuery<E> allQuery = getEntityManager().createQuery(all);
@@ -161,7 +166,7 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
         return getEntityManager().getTransaction();
     }
 
-    default void delete(long id) throws DAOException {
+    default void delete(I id) throws DAOException {
         //todo: replace by a direct query.
         //CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         //CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(getMyType());
@@ -176,45 +181,45 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
      * @param id the id
      * @return the t
      */
-    default E find(long id) throws DAOException {
-        return getEntityManager().find(getMyType(), id);
+    default E find(I id) throws DAOException {
+        return getEntityManager().find(getMyEntityType(), id);
     }
 
-    default ImmutableLongList getIds() throws DAOException {
-        return LongLists.immutable.ofAll(getIds(false));
+    default List<I> getIds() throws DAOException {
+        return getIds(false);
     }
 
-    default ImmutableLongList getIds(boolean reverse) throws DAOException {
+    default List<I> getIds(boolean reverse) throws DAOException {
         return getIds(reverse, 0);
     }
 
-    default ImmutableLongList getIds(boolean reverse, int first) throws DAOException {
+    default List<I> getIds(boolean reverse, int first) throws DAOException {
         return getIds(reverse, first, -1);
     }
 
-    default ImmutableLongList getIds(boolean reverse, int first, int limit) throws DAOException {
-        return LongLists.immutable.ofAll(getIDsQuery(reverse, first, limit).getResultList());
+    default List<I> getIds(boolean reverse, int first, int limit) throws DAOException {
+        return getIDsQuery(reverse, first, limit).getResultList();
     }
 
-    private TypedQuery<Long> getIDsQuery(boolean reverse, int first, int limit) throws DAOException {
+    private TypedQuery<I> getIDsQuery(boolean reverse, int first, int limit) throws DAOException {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(long.class);
-        Root<E> t = cq.from(getMyType());
+        CriteriaQuery<I> cq = cb.createQuery(getMyIdType());
+        Root<E> t = cq.from(getMyEntityType());
         cq.select(t.get(getIdname()));
         cq.orderBy(reverse ? cb.desc(t.get(getIdname())) : cb.asc(t.get(getIdname())));
-        TypedQuery<Long> q = getEntityManager().createQuery(cq);
+        TypedQuery<I> q = getEntityManager().createQuery(cq);
         if (first > -1) q.setFirstResult(first);
         if (limit > -1) q.setMaxResults(limit);
         return q;
     }
 
     private String getIdname() throws DAOException {
-        String idname = getInheritedFields(getMyType()).stream().filter(f -> f.isAnnotationPresent(Id.class)).map(Field::getName).findFirst()
-                .orElseGet(getInheritedMethods(getMyType()).stream().filter(f -> f.isAnnotationPresent(Id.class)).map(Method::getName).findFirst()::get);
+        String idname = getInheritedFields(getMyEntityType()).stream().filter(f -> f.isAnnotationPresent(Id.class)).map(Field::getName).findFirst()
+                .orElseGet(getInheritedMethods(getMyEntityType()).stream().filter(f -> f.isAnnotationPresent(Id.class)).map(Method::getName).findFirst()::get);
         if (idname == null)
             throw new DAOException(
                     AppConstants.ErrorCode.DAO_EXCEPTION,
-                    "No field or method annotated with @Id for class: " + getMyType().getName(),
+                    "No field or method annotated with @Id for class: " + getMyEntityType().getName(),
                     "", "");
         return idname;
     }
@@ -234,7 +239,7 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
     private TypedQuery<Long> getSizeQuery() {
         CriteriaBuilder qb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Long> cq = qb.createQuery(Long.class);
-        cq.select(qb.count(cq.from(getMyType())));
+        cq.select(qb.count(cq.from(getMyEntityType())));
         return getEntityManager().createQuery(cq);
     }
 
@@ -247,16 +252,16 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
     }
 
     default Page<E> queryByPage(int pagenumber, int pagesize, int totalItems, Query contentQuery) {
-        return new Page<>(pagenumber, pagesize, totalItems, (int) Math.ceil(totalItems / (float) pagesize), contentQuery.getResultList());
+        return new Page<E>(pagenumber, pagesize, totalItems, (int) Math.ceil(totalItems / (float) pagesize), contentQuery.getResultList());
     }
 
     private TypedQuery<E> findAllQuery(boolean reverse, int first, int limit) throws DAOException {
-        String queryName = getMyType().getSimpleName().toLowerCase() + ".findAll";
-        TypedQuery<E> result = getEntityManager().createNamedQuery(queryName, getMyType());
+        String queryName = getMyEntityType().getSimpleName().toLowerCase() + ".findAll";
+        TypedQuery<E> result = getEntityManager().createNamedQuery(queryName, getMyEntityType());
         if (result == null) {
             CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-            CriteriaQuery<E> cq = cb.createQuery(getMyType());
-            Root<E> t = cq.from(getMyType());
+            CriteriaQuery<E> cq = cb.createQuery(getMyEntityType());
+            Root<E> t = cq.from(getMyEntityType());
             cq.select(t);
             cq.orderBy(reverse ? cb.desc(t.get(getIdname())) : cb.asc(t.get(getIdname())));
             result = getEntityManager().createQuery(cq);
@@ -341,7 +346,7 @@ public interface DAO<E extends SimpleEntity<I>, I> extends AutoCloseable {
 
     private TypedQuery<E> getNamedQuery(String namedQueryName, Map<String, Object> parameters, int first, int limit) {
         Set<Map.Entry<String, Object>> rawParameters = parameters.entrySet();
-        TypedQuery<E> query = getEntityManager().createNamedQuery(namedQueryName, getMyType());
+        TypedQuery<E> query = getEntityManager().createNamedQuery(namedQueryName, getMyEntityType());
         if (limit > 0)
             query.setMaxResults(limit);
 
